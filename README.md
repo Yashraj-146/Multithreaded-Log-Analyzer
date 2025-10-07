@@ -30,4 +30,4 @@ Error Rate: 3.5 %
 Yashraj Umesh Panhalkar — aspiring C++ developer passionate about systems and data engineering.
 
 ## To push on GitHub
-git push origin main --force
+git add . && git commit -m "update" && git push origin main --force
