@@ -1,0 +1,2 @@
+2025-10-07 13:22:45, INFO, user_id=123, latency=42ms, status=200
+2025-10-07 13:22:46, ERROR, user_id=999, latency=120ms, status=500

@@ -1,0 +1,1 @@
+/usr/bin/c++  -arch arm64 -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/LogAnalyzer.dir/src/main.cpp.o CMakeFiles/LogAnalyzer.dir/src/LogParser.cpp.o CMakeFiles/LogAnalyzer.dir/src/StatsManager.cpp.o CMakeFiles/LogAnalyzer.dir/src/ThreadPool.cpp.o -o LogAnalyzer
