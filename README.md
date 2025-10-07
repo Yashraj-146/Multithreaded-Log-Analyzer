@@ -28,3 +28,6 @@ Error Rate: 3.5 %
 
 ## Author
 Yashraj Umesh Panhalkar — aspiring C++ developer passionate about systems and data engineering.
+
+## To push on GitHub
+git push origin main --force
