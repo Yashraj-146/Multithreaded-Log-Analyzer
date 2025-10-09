@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "queue": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "__mutex_base": "cpp",
+        "thread": "cpp"
     }
 }
