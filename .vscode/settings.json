@@ -3,6 +3,7 @@
         "queue": "cpp",
         "iostream": "cpp",
         "__mutex_base": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "vector": "cpp"
     }
 }

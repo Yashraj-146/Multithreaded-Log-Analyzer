@@ -12,6 +12,11 @@ void StatsManager::update(const std::vector<LogEntry>& entries) {
 
 void StatsManager::printSummary() const {
     std::lock_guard<std::mutex> lock(mtx);
+    if (totalCount == 0) {
+        std::cout << "No logs processed.\n";
+        return;
+    }
+
     double avgLatency = totalCount ? totalLatency / totalCount : 0.0;
     double errorRate = totalCount ? (100.0 * errorCount / totalCount) : 0.0;
 
