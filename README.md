@@ -19,7 +19,10 @@ make
 ```
 
 ## RUN
+Single Thread:
 ./LogAnalyzer ../data/sample.log
+Multithread:
+./LogAnalyzer ../data/large_sample.log
 
 ## Example Output
 Processed Logs: 100000
