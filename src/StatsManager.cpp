@@ -1,26 +1,31 @@
 #include "StatsManager.h"
+#include "LogEntry.h"
 #include <iostream>
+#include <mutex>
 
 void StatsManager::update(const std::vector<LogEntry>& entries) {
-    std::lock_guard<std::mutex> lock(mtx);
     for (const auto& e : entries) {
-        totalCount++;
-        if (e.statusCode >= 400) errorCount++;
+        ++totalLogs;
+        if (e.statusCode >= 400)
+            ++errorCount;
         totalLatency += e.latency;
     }
 }
 
+void StatsManager::merge(const StatsManager& other) {
+    std::lock_guard<std::mutex> lock(mtx);
+    totalLogs += other.totalLogs;
+    errorCount += other.errorCount;
+    totalLatency += other.totalLatency;
+}
+
 void StatsManager::printSummary() const {
     std::lock_guard<std::mutex> lock(mtx);
-    if (totalCount == 0) {
+    if (totalLogs == 0) {
         std::cout << "No logs processed.\n";
         return;
     }
-
-    double avgLatency = totalCount ? totalLatency / totalCount : 0.0;
-    double errorRate = totalCount ? (100.0 * errorCount / totalCount) : 0.0;
-
-    std::cout << "Processed Logs: " << totalCount << "\n";
-    std::cout << "Average Latency: " << avgLatency << " ms\n";
-    std::cout << "Error Rate: " << errorRate << " %\n";
+    std::cout << "Processed Logs: " << totalLogs << "\n"
+              << "Average Latency: " << (totalLatency / totalLogs) << " ms\n"
+              << "Error Rate: " << (100.0 * errorCount / totalLogs) << " %\n";
 }

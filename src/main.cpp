@@ -12,7 +12,7 @@
 #include "StatsManager.h"
 #include "ThreadPool.h"
 
-// Utility: Measure wall-clock time of any callable
+// --- Utility to measure time of any callable ---
 inline double measureExecutionTime(std::function<void()> func) {
     auto start = std::chrono::steady_clock::now();
     func();
@@ -21,14 +21,18 @@ inline double measureExecutionTime(std::function<void()> func) {
     return elapsed.count();
 }
 
+inline double nowMs() {
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(steady_clock::now().time_since_epoch()).count();
+}
+
 int main(int argc, char** argv) {
-    // --- 1. Validate CLI input ---
     if (argc < 2) {
         std::cerr << "Usage: ./LogAnalyzer <log_file_path>\n";
         return 1;
     }
 
-    // --- 2. Read file into memory ---
+    // --- Read log file ---
     std::ifstream file(argv[1]);
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file " << argv[1] << "\n";
@@ -41,15 +45,9 @@ int main(int argc, char** argv) {
         if (!line.empty()) lines.push_back(line);
     file.close();
 
-    if (lines.empty()) {
-        std::cerr << "File is empty or unreadable.\n";
-        return 1;
-    }
-
     std::cout << "Loaded " << lines.size() << " log entries.\n";
-    std::cout << "\n=== Benchmarking Mode ===\n";
 
-    // --- 3. Sequential benchmark ---
+    // --- Sequential benchmark ---
     double sequentialTime = measureExecutionTime([&]() {
         auto entries = LogParser::parseChunk(lines);
         StatsManager stats;
@@ -57,14 +55,16 @@ int main(int argc, char** argv) {
     });
     std::cout << "Sequential Processing Time: " << sequentialTime << " sec\n";
 
-    // --- 4. Multithreaded benchmark ---
+    // --- Multithreaded benchmark with local aggregation ---
     double parallelTime = measureExecutionTime([&]() {
         size_t numThreads = std::max<size_t>(1, std::thread::hardware_concurrency());
-        size_t chunkSize = (lines.size() + numThreads - 1) / numThreads;
+        size_t chunkSize = std::max<size_t>(1000, lines.size() / (numThreads * 2));
 
         ThreadPool pool(numThreads);
-        StatsManager stats;
+        StatsManager globalStats;
         std::vector<std::future<void>> futures;
+
+        double startMs = nowMs();
 
         for (size_t i = 0; i < numThreads; ++i) {
             size_t startIdx = i * chunkSize;
@@ -73,25 +73,32 @@ int main(int argc, char** argv) {
 
             std::vector<std::string> chunk(lines.begin() + startIdx, lines.begin() + endIdx);
 
-            futures.emplace_back(pool.enqueue([chunk, &stats]() {
+            futures.emplace_back(pool.enqueue([chunk, &globalStats]() {
                 auto entries = LogParser::parseChunk(chunk);
-                stats.update(entries);
+
+                // Local accumulation
+                StatsManager local;
+                local.update(entries);
+
+                // Single lock merge
+                globalStats.merge(local);
             }));
         }
 
-        // Wait for all worker tasks to finish
         for (auto& f : futures) f.get();
 
+        double endMs = nowMs();
+        std::cout << "Parallel work finished in " << (endMs - startMs) << " ms\n";
+
         std::cout << "\n=== Final Summary (Parallel) ===\n";
-        stats.printSummary();
+        globalStats.printSummary();
     });
 
     std::cout << "Multithreaded Processing Time: " << parallelTime << " sec\n";
 
-    // --- 5. Report performance gain ---
     double speedup = sequentialTime / parallelTime;
     std::cout << "\nSpeedup: x" << speedup << "\n";
+    std::cout << "✅ Day 5 Complete — Optimized & Profiled Successfully!\n";
 
-    std::cout << "\n✅ Day 4 Complete — Benchmarking Successful!\n";
     return 0;
 }
