@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
 
     double speedup = sequentialTime / parallelTime;
     std::cout << "\nSpeedup: x" << speedup << "\n";
-    std::cout << "✅ Day 5 Complete — Optimized & Profiled Successfully!\n";
+    std::cout << "✅ Complete — Optimized & Profiled Successfully!\n";
 
     return 0;
 }
