@@ -96,7 +96,8 @@ Threads	Sequential (s)	Parallel (s)	Speedup (x)
 8	5.23	1.19	4.39
 
 ## Author
-Yashraj Umesh Panhalkar — aspiring C++ developer passionate about systems and data engineering.
+Yashraj Umesh Panhalkar [@Yashraj-146]
+💼 Focus: C++ / Systems Programming / Performance Engineering
 
 ## To push on GitHub
 git add . && git commit -m "update" && git push origin main --force
