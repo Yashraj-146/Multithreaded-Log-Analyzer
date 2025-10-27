@@ -91,13 +91,13 @@ python3 plot_speedup.py
 # 🧩 Example Benchmark Results
 Threads	Sequential (s)	Parallel (s)	Speedup (x)
 
-1	5.23	5.23	1.00
+1	  5.23	  5.23	  1.00
 
-2	5.23	2.68	1.95
+2	  5.23	  2.68	  1.95
 
-4	5.23	1.45	3.61
+4	  5.23	  1.45	  3.61
 
-8	5.23	1.19	4.39
+8	  5.23	  1.19	  4.39
 
 ## Author
 Yashraj Umesh Panhalkar [@Yashraj-146]
