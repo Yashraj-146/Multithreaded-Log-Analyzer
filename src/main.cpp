@@ -32,7 +32,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    // --- Read log file ---
+    // --- [PROFILE] File Reading ---
+    double tStartRead = nowMs();
     std::ifstream file(argv[1]);
     if (!file.is_open()) {
         std::cerr << "Error: Unable to open file " << argv[1] << "\n";
@@ -44,61 +45,78 @@ int main(int argc, char** argv) {
     while (std::getline(file, line))
         if (!line.empty()) lines.push_back(line);
     file.close();
-
+    double tEndRead = nowMs();
+    std::cout << "[PROFILE] File reading: " << (tEndRead - tStartRead) << " ms\n";
     std::cout << "Loaded " << lines.size() << " log entries.\n";
 
-    // --- Sequential benchmark ---
-    double sequentialTime = measureExecutionTime([&]() {
-        auto entries = LogParser::parseChunk(lines);
-        StatsManager stats;
-        stats.update(entries);
-    });
-    std::cout << "Sequential Processing Time: " << sequentialTime << " sec\n";
+    // --- [PROFILE] Sequential Benchmark ---
+    double tStartSeq = nowMs();
+    auto entries = LogParser::parseChunk(lines);
+    StatsManager seqStats;
+    seqStats.update(entries);
+    double tEndSeq = nowMs();
+    std::cout << "[PROFILE] Sequential processing: " << (tEndSeq - tStartSeq) / 1000.0 << " sec\n";
 
-    // --- Multithreaded benchmark with local aggregation ---
-    double parallelTime = measureExecutionTime([&]() {
-        size_t numThreads = std::max<size_t>(1, std::thread::hardware_concurrency());
-        size_t chunkSize = std::max<size_t>(1000, lines.size() / (numThreads * 2));
+    // --- [PROFILE] Parallel Benchmark with Local Aggregation ---
+    double tStartParallel = nowMs();
+    size_t numThreads = std::max<size_t>(1, std::thread::hardware_concurrency());
+    size_t chunkSize = std::max<size_t>(1000, lines.size() / (numThreads * 2));
 
-        ThreadPool pool(numThreads);
-        StatsManager globalStats;
-        std::vector<std::future<void>> futures;
+    std::cout << "[INFO] Using " << numThreads << " threads, chunk size: " << chunkSize << "\n";
 
-        double startMs = nowMs();
+    double tStartPool = nowMs();
+    ThreadPool pool(numThreads);
+    StatsManager globalStats;
+    std::vector<std::future<void>> futures;
+    double tEndPool = nowMs();
+    std::cout << "[PROFILE] Thread pool initialization: " << (tEndPool - tStartPool) << " ms\n";
 
-        for (size_t i = 0; i < numThreads; ++i) {
-            size_t startIdx = i * chunkSize;
-            if (startIdx >= lines.size()) break;
-            size_t endIdx = std::min(lines.size(), startIdx + chunkSize);
+    double tStartTasks = nowMs();
+    for (size_t i = 0; i < numThreads; ++i) {
+        size_t startIdx = i * chunkSize;
+        if (startIdx >= lines.size()) break;
+        size_t endIdx = std::min(lines.size(), startIdx + chunkSize);
 
-            std::vector<std::string> chunk(lines.begin() + startIdx, lines.begin() + endIdx);
+        std::vector<std::string> chunk(lines.begin() + startIdx, lines.begin() + endIdx);
 
-            futures.emplace_back(pool.enqueue([chunk, &globalStats]() {
-                auto entries = LogParser::parseChunk(chunk);
+        futures.emplace_back(pool.enqueue([chunk, &globalStats]() {
+            auto entries = LogParser::parseChunk(chunk);
 
-                // Local accumulation
-                StatsManager local;
-                local.update(entries);
+            // Local accumulation
+            StatsManager local;
+            local.update(entries);
 
-                // Single lock merge
-                globalStats.merge(local);
-            }));
-        }
+            // Single lock merge
+            globalStats.merge(local);
+        }));
+    }
+    double tEndTasks = nowMs();
+    std::cout << "[PROFILE] Task scheduling: " << (tEndTasks - tStartTasks) << " ms\n";
 
-        for (auto& f : futures) f.get();
+    double tStartJoin = nowMs();
+    for (auto& f : futures) f.get();
+    double tEndJoin = nowMs();
+    std::cout << "[PROFILE] Thread join/wait: " << (tEndJoin - tStartJoin) << " ms\n";
 
-        double endMs = nowMs();
-        std::cout << "Parallel work finished in " << (endMs - startMs) << " ms\n";
+    double tEndParallel = nowMs();
+    std::cout << "[PROFILE] Total parallel phase: " << (tEndParallel - tStartParallel) / 1000.0 << " sec\n";
 
-        std::cout << "\n=== Final Summary (Parallel) ===\n";
-        globalStats.printSummary();
-    });
+    // --- [PROFILE] Final Merge + Summary ---
+    double tStartPrint = nowMs();
+    std::cout << "\n=== Final Summary (Parallel) ===\n";
+    globalStats.printSummary();
+    double tEndPrint = nowMs();
+    std::cout << "[PROFILE] Printing summary: " << (tEndPrint - tStartPrint) << " ms\n";
 
-    std::cout << "Multithreaded Processing Time: " << parallelTime << " sec\n";
-
+    // --- [PROFILE] Speedup Calculation ---
+    double sequentialTime = (tEndSeq - tStartSeq) / 1000.0;
+    double parallelTime = (tEndParallel - tStartParallel) / 1000.0;
     double speedup = sequentialTime / parallelTime;
-    std::cout << "\nSpeedup: x" << speedup << "\n";
-    std::cout << "✅ Complete — Optimized & Profiled Successfully!\n";
+
+    std::cout << "\nSequential: " << sequentialTime << " sec\n";
+    std::cout << "Parallel:   " << parallelTime << " sec\n";
+    std::cout << "Speedup: x" << speedup << "\n";
+    std::cout << "✅ Profiling completed successfully!\n";
 
     return 0;
 }
