@@ -1,6 +1,8 @@
 #pragma once
 #include <mutex>
 #include <iostream>
+#include <vector>
+#include "LogEntry.h"   // ✅ Fix: include the definition of LogEntry
 
 class StatsManager {
 public:
