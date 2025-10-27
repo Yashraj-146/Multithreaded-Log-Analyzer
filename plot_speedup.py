@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-df = pd.read_csv("profiling_data.csv", names=["Threads","Sequential","Parallel","Speedup"])
+df = pd.read_csv("/Users/yashraj146/Documents/MultithreadedLogAnalyzer/build/profiling_data.csv", names=["Threads","Sequential","Parallel","Speedup"])
 
 plt.figure(figsize=(8,5))
 plt.plot(df["Threads"], df["Speedup"], marker="o", linewidth=2)
