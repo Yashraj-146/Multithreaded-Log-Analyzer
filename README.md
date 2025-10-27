@@ -60,6 +60,7 @@ Multithread:
 ./LogAnalyzer ../data/large_sample.log
 
 ## Example Output
+```bash
 [PROFILE] File reading: 212 ms
 Loaded 100000 log entries.
 [PROFILE] Sequential processing: 0.476 sec
@@ -79,6 +80,7 @@ Sequential: 0.476 sec
 Parallel:   0.059 sec
 Speedup: x8.0678
 Completed successfully!
+```
 
 # 📊 Visualize Performance
 Run the Python script to generate a speedup plot:
