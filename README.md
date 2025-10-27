@@ -1,15 +1,29 @@
-# Multithreaded Log Analyzer (C++17)
+# 🧩 Multithreaded Log Analyzer
 
-A high-performance, multithreaded C++17 tool for parsing and analyzing large server/network log files.
+A high-performance, multithreaded C++17 application that analyzes large-scale log files, computes performance statistics, and demonstrates real-world concurrency, profiling, and optimization techniques.
 
-## Features
-- Parses log files and computes key metrics:
-  - Total requests
-  - Error rate
-  - Average latency
-- Multithreaded processing using a custom thread pool
-- Efficient memory management with RAII
-- Modular CMake-based architecture
+# 🚀 Features
+
+🧵 Multithreaded Log Processing — Uses a custom thread pool for concurrent parsing.
+
+📊 Real-Time Progress Bar — Displays live processing progress in the terminal.
+
+⚙️ Profiling Instrumentation — Measures and logs performance at every stage.
+
+📈 Performance Visualization — Exports timing data to CSV and generates Speedup graphs.
+
+🧮 Optimized Stats Aggregation — Thread-local accumulation with minimal locking.
+
+💾 Asynchronous File Reading (optional) — Scales efficiently with large datasets.
+
+# 🧠 Architecture Overview
+'''bash
+ ├── ThreadPool        → Manages worker threads and tasks
+ ├── LogParser         → Parses log lines into structured entries
+ ├── StatsManager      → Aggregates latency, error rate, and totals
+ ├── profiling_data.csv → Stores runtime benchmarks
+ └── plot_speedup.py   → Visualizes performance scaling
+ '''
 
 ## Build
 ```bash
