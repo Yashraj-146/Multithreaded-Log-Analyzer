@@ -16,6 +16,14 @@ A high-performance, multithreaded C++17 application that analyzes large-scale lo
 
 💾 Asynchronous File Reading (optional) — Scales efficiently with large datasets.
 
+# 🧠 Architecture Overview
+```bash
+├── ThreadPool        → Manages worker threads and tasks
+├── LogParser         → Parses log lines into structured entries
+├── StatsManager      → Aggregates latency, error rate, and totals
+├── profiling_data.csv → Stores runtime benchmarks
+└── plot_speedup.py   → Visualizes performance scaling```
+
 ## Build
 ```bash
 mkdir build && cd build
