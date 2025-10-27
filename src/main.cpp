@@ -7,6 +7,8 @@
 #include <chrono>
 #include <functional>
 #include <algorithm>
+#include <atomic>
+#include <iomanip>
 
 #include "LogParser.h"
 #include "StatsManager.h"
@@ -57,19 +59,18 @@ int main(int argc, char** argv) {
     double tEndSeq = nowMs();
     std::cout << "[PROFILE] Sequential processing: " << (tEndSeq - tStartSeq) / 1000.0 << " sec\n";
 
-    // --- [PROFILE] Parallel Benchmark with Local Aggregation ---
+    // --- [PROFILE] Parallel Benchmark with Real-time Progress ---
     double tStartParallel = nowMs();
     size_t numThreads = std::max<size_t>(1, std::thread::hardware_concurrency());
     size_t chunkSize = std::max<size_t>(1000, lines.size() / (numThreads * 2));
 
     std::cout << "[INFO] Using " << numThreads << " threads, chunk size: " << chunkSize << "\n";
 
-    double tStartPool = nowMs();
     ThreadPool pool(numThreads);
     StatsManager globalStats;
     std::vector<std::future<void>> futures;
-    double tEndPool = nowMs();
-    std::cout << "[PROFILE] Thread pool initialization: " << (tEndPool - tStartPool) << " ms\n";
+    std::atomic<size_t> processedChunks(0);
+    size_t totalChunks = numThreads;
 
     double tStartTasks = nowMs();
     for (size_t i = 0; i < numThreads; ++i) {
@@ -79,23 +80,25 @@ int main(int argc, char** argv) {
 
         std::vector<std::string> chunk(lines.begin() + startIdx, lines.begin() + endIdx);
 
-        futures.emplace_back(pool.enqueue([chunk, &globalStats]() {
+        futures.emplace_back(pool.enqueue([chunk, &globalStats, &processedChunks, totalChunks]() {
             auto entries = LogParser::parseChunk(chunk);
-
-            // Local accumulation
             StatsManager local;
             local.update(entries);
-
-            // Single lock merge
             globalStats.merge(local);
+
+            // Real-time progress update
+            size_t done = ++processedChunks;
+            double pct = (100.0 * done) / totalChunks;
+            std::cout << "\r[Progress] " << std::setw(3) << (int)pct << "% complete" << std::flush;
         }));
     }
     double tEndTasks = nowMs();
-    std::cout << "[PROFILE] Task scheduling: " << (tEndTasks - tStartTasks) << " ms\n";
+    std::cout << "\n[PROFILE] Task scheduling: " << (tEndTasks - tStartTasks) << " ms\n";
 
     double tStartJoin = nowMs();
     for (auto& f : futures) f.get();
     double tEndJoin = nowMs();
+    std::cout << "\r[Progress] 100% complete ✅\n";
     std::cout << "[PROFILE] Thread join/wait: " << (tEndJoin - tStartJoin) << " ms\n";
 
     double tEndParallel = nowMs();
@@ -108,7 +111,7 @@ int main(int argc, char** argv) {
     double tEndPrint = nowMs();
     std::cout << "[PROFILE] Printing summary: " << (tEndPrint - tStartPrint) << " ms\n";
 
-    // --- [PROFILE] Speedup Calculation ---
+    // --- [PROFILE] Speedup Calculation & CSV Logging ---
     double sequentialTime = (tEndSeq - tStartSeq) / 1000.0;
     double parallelTime = (tEndParallel - tStartParallel) / 1000.0;
     double speedup = sequentialTime / parallelTime;
@@ -116,7 +119,12 @@ int main(int argc, char** argv) {
     std::cout << "\nSequential: " << sequentialTime << " sec\n";
     std::cout << "Parallel:   " << parallelTime << " sec\n";
     std::cout << "Speedup: x" << speedup << "\n";
-    std::cout << "✅ Profiling completed successfully!\n";
 
+    // Save benchmark to CSV
+    std::ofstream csv("profiling_data.csv", std::ios::app);
+    csv << numThreads << "," << sequentialTime << "," << parallelTime << "," << speedup << "\n";
+    csv.close();
+
+    std::cout << "✅ Profiling completed — data saved to profiling_data.csv\n";
     return 0;
 }
