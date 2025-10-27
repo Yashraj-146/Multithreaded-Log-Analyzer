@@ -17,6 +17,9 @@ mkdir build && cd build
 cmake ..
 make
 ```
+## To Rebuild
+cd build
+make -j$(sysctl -n hw.ncpu)
 
 ## RUN
 Single Thread:
