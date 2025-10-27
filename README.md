@@ -56,8 +56,6 @@ cd build
 make -j$(sysctl -n hw.ncpu)
 
 ## RUN
-Single Thread:
-./LogAnalyzer ../data/sample.log
 Multithread:
 ./LogAnalyzer ../data/large_sample.log
 
