@@ -28,9 +28,25 @@ Multithread:
 ./LogAnalyzer ../data/large_sample.log
 
 ## Example Output
-Processed Logs: 100000
-Average Latency: 48.7 ms  
-Error Rate: 3.5 %
+[PROFILE] File reading: 212 ms
+Loaded 100000 log entries.
+[PROFILE] Sequential processing: 0.476 sec
+[INFO] Using 8 threads, chunk size: 6250
+[PROFILE] Thread pool initialization: 0 ms
+[PROFILE] Task scheduling: 7 ms
+[PROFILE] Thread join/wait: 52 ms
+[PROFILE] Total parallel phase: 0.059 sec
+
+=== Final Summary (Parallel) ===
+Processed Logs: 50000
+Average Latency: 254.702 ms
+Error Rate: 50.198 %
+[PROFILE] Printing summary: 0 ms
+
+Sequential: 0.476 sec
+Parallel:   0.059 sec
+Speedup: x8.0678
+Completed successfully!
 
 ## Author
 Yashraj Umesh Panhalkar — aspiring C++ developer passionate about systems and data engineering.
