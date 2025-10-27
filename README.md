@@ -20,16 +20,14 @@ Built for system-level engineering interviews and backend performance portfolios
 
 # 🧠 Architecture Overview
 main.cpp
-'''
  ├── ThreadPool        → Manages worker threads and tasks
  ├── LogParser         → Parses log lines into structured entries
  ├── StatsManager      → Aggregates latency, error rate, and totals
  ├── profiling_data.csv → Stores runtime benchmarks
  └── plot_speedup.py   → Visualizes performance scaling
-'''
+
 # 🧱 Project Structure
 MultithreadedLogAnalyzer/
-'''
 ├── CMakeLists.txt
 ├── include/
 │   ├── LogEntry.h
@@ -46,7 +44,7 @@ MultithreadedLogAnalyzer/
 ├── generate_logs.cpp
 ├── plot_speedup.py
 └── profiling_data.csv
-'''
+
 # ⚙️ Build Instructions
 # 1️⃣ Prerequisites
 
