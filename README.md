@@ -1,67 +1,22 @@
-# 🧩 Multithreaded Log Analyzer
+# Multithreaded Log Analyzer (C++17)
 
-A high-performance, multithreaded C++17 application that analyzes large-scale log files, computes performance statistics, and demonstrates real-world concurrency, profiling, and optimization techniques.
+A high-performance, multithreaded C++17 tool for parsing and analyzing large server/network log files.
 
-Built for system-level engineering interviews and backend performance portfolios (e.g., Ciena, Aspect Ratio, etc.).
+## Features
+- Parses log files and computes key metrics:
+  - Total requests
+  - Error rate
+  - Average latency
+- Multithreaded processing using a custom thread pool
+- Efficient memory management with RAII
+- Modular CMake-based architecture
 
-# 🚀 Features
-
-🧵 Multithreaded Log Processing — Uses a custom thread pool for concurrent parsing.
-
-📊 Real-Time Progress Bar — Displays live processing progress in the terminal.
-
-⚙️ Profiling Instrumentation — Measures and logs performance at every stage.
-
-📈 Performance Visualization — Exports timing data to CSV and generates Speedup graphs.
-
-🧮 Optimized Stats Aggregation — Thread-local accumulation with minimal locking.
-
-💾 Asynchronous File Reading (optional) — Scales efficiently with large datasets.
-
-# 🧠 Architecture Overview
-main.cpp
- ├── ThreadPool        → Manages worker threads and tasks
- ├── LogParser         → Parses log lines into structured entries
- ├── StatsManager      → Aggregates latency, error rate, and totals
- ├── profiling_data.csv → Stores runtime benchmarks
- └── plot_speedup.py   → Visualizes performance scaling
-
-# 🧱 Project Structure
-MultithreadedLogAnalyzer/
-├── CMakeLists.txt
-├── include/
-│   ├── LogEntry.h
-│   ├── LogParser.h
-│   ├── StatsManager.h
-│   ├── ThreadPool.h
-├── src/
-│   ├── main.cpp
-│   ├── LogParser.cpp
-│   ├── StatsManager.cpp
-│   ├── ThreadPool.cpp
-├── data/
-│   └── large_sample.log
-├── generate_logs.cpp
-├── plot_speedup.py
-└── profiling_data.csv
-
-# ⚙️ Build Instructions
-# 1️⃣ Prerequisites
-
-C++17 or later (Apple Clang, GCC, or MSVC)
-
-CMake ≥ 3.10
-
-Python3 + matplotlib (for visualization)
-
-# 2️⃣ Build Steps
-mkdir -p build
-cd build
+## Build
+```bash
+mkdir build && cd build
 cmake ..
 make
-
-# 3️⃣ Run Analyzer
-./LogAnalyzer ../data/large_sample.log
+```
 ## To Rebuild
 cd build
 make -j$(sysctl -n hw.ncpu)
@@ -92,29 +47,6 @@ Sequential: 0.476 sec
 Parallel:   0.059 sec
 Speedup: x8.0678
 Completed successfully!
-
-# 📊 Visualize Performance
-
-Run the Python script to generate a speedup plot:
-
-python3 plot_speedup.py
-
-# 🧩 Example Benchmark Results
-Threads	Sequential (s)	Parallel (s)	Speedup (x)
-1	5.23	5.23	1.00
-2	5.23	2.68	1.95
-4	5.23	1.45	3.61
-8	5.23	1.19	4.39
-
-# 💡 Key Learnings
-
-Efficient chunk partitioning and thread-local aggregation minimize mutex contention.
-
-Instrumentation-driven development helps identify real bottlenecks (I/O vs CPU).
-
-Scales linearly with core count for CPU-bound workloads.
-
-Demonstrates both system-level performance engineering and data-oriented design skills.
 
 ## Author
 Yashraj Umesh Panhalkar — aspiring C++ developer passionate about systems and data engineering.
