@@ -22,7 +22,28 @@ A high-performance, multithreaded C++17 application that analyzes large-scale lo
 ├── LogParser         → Parses log lines into structured entries
 ├── StatsManager      → Aggregates latency, error rate, and totals
 ├── profiling_data.csv → Stores runtime benchmarks
-└── plot_speedup.py   → Visualizes performance scaling```
+└── plot_speedup.py   → Visualizes performance scaling
+```
+
+# 🧱 Project Structure
+```MultithreadedLogAnalyzer/
+├── CMakeLists.txt
+├── include/
+│   ├── LogEntry.h
+│   ├── LogParser.h
+│   ├── StatsManager.h
+│   ├── ThreadPool.h
+├── src/
+│   ├── main.cpp
+│   ├── LogParser.cpp
+│   ├── StatsManager.cpp
+│   ├── ThreadPool.cpp
+├── data/
+│   └── large_sample.log
+├── generate_logs.cpp
+├── plot_speedup.py
+└── profiling_data.csv
+```
 
 ## Build
 ```bash
